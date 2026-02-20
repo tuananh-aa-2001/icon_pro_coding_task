@@ -1,0 +1,110 @@
+/* TicketList component styles */
+
+.tickets-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-start;
+    overflow-x: auto;
+    padding-top: 4px;
+    padding-bottom: 1rem;
+}
+
+.ticket-card {
+    border: 1px solid var(--color-border);
+    padding: 2rem;
+    background: var(--color-surface);
+    transition: all 0.3s ease;
+    flex: 0 0 340px;
+    min-width: 340px;
+    position: relative;
+}
+
+.ticket-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 4px 16px rgba(42, 42, 40, 0.1);
+    transform: translateY(-2px);
+}
+
+.ticket-card>div:first-of-type {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ticket-number {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: var(--color-accent);
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.ticket-card .field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.ticket-card>div {
+    margin-bottom: 1rem;
+}
+
+.ticket-card>div:last-child {
+    margin-bottom: 0;
+}
+
+.ticket-card strong {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.ticket-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.7;
+}
+
+/* Tablet (640px and up) */
+@media (min-width: 640px) {
+    .tickets-wrapper {
+        gap: 1.5rem;
+    }
+
+    .ticket-card {
+        padding: 2rem;
+        flex: 0 0 360px;
+        min-width: 360px;
+    }
+
+    .ticket-card .field-row {
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ticket-card strong {
+        font-size: 0.85rem;
+    }
+
+    .ticket-card p {
+        font-size: 0.95rem;
+    }
+}
