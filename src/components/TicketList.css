@@ -19,6 +19,7 @@
     flex: 0 0 340px;
     min-width: 340px;
     position: relative;
+    cursor: pointer;
 }
 
 .ticket-card:hover {

@@ -4,9 +4,10 @@ import './TicketList.css'
 
 type Props = {
   tickets: Ticket[]
+  onTicketClick: (ticket: Ticket) => void
 }
 
-const TicketList: React.FC<Props> = ({ tickets }) => {
+const TicketList: React.FC<Props> = ({ tickets, onTicketClick }) => {
   if (!tickets || tickets.length === 0) {
     return <div>No tickets yet. Create one using the menu.</div>;
   }
@@ -14,7 +15,7 @@ const TicketList: React.FC<Props> = ({ tickets }) => {
   return (
     <div className="tickets-wrapper">
       {[...tickets].reverse().map((t, index) => (
-        <article className="ticket-card" key={t.id}>
+        <article className="ticket-card" key={t.id} onClick={() => onTicketClick(t)}>
           <div className="ticket-number">#{index + 1}</div>
           <div className="field-row">
             <div>

@@ -28,5 +28,19 @@ export function useTickets() {
         setTickets((prev) => [newTicket, ...prev])
     }
 
-    return { tickets, addTicket }
+    const updateTicket = (id: string, data: Omit<Ticket, 'id' | 'createdAt'>) => {
+        setTickets((prev) =>
+            prev.map((ticket) =>
+                ticket.id === id
+                    ? { ...ticket, ...data }
+                    : ticket
+            )
+        )
+    }
+
+    const deleteTicket = (id: string) => {
+        setTickets((prev) => prev.filter((ticket) => ticket.id !== id))
+    }
+
+    return { tickets, addTicket, updateTicket, deleteTicket }
 }

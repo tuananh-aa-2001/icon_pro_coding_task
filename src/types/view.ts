@@ -1,1 +1,1 @@
-export type View = 'form' | 'list'
+export type View = 'form' | 'list' | 'detail'
