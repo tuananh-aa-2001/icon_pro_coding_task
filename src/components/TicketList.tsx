@@ -149,7 +149,7 @@ const TicketList: React.FC<Props> = ({ tickets, onTicketClick }) => {
             py: 2,
           }}
         >
-          {filteredAndSortedTickets.map((ticket, index) => (
+          {filteredAndSortedTickets.map((ticket) => (
             <Card
               key={ticket.id}
               sx={{
