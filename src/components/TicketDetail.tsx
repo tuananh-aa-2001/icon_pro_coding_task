@@ -1,7 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import { 
+  Box, 
+  Button, 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions,
+  Paper,
+  Typography,
+  IconButton
+} from '@mui/material'
+import { Close as CloseIcon } from '@mui/icons-material'
 import { Ticket } from '../types'
-import { useFormValidation } from '../hooks'
-import './TicketDetail.css'
+import { useTicketForm } from '../hooks'
+import FormField from './FormField'
 
 type Props = {
   ticket: Ticket
@@ -10,18 +22,10 @@ type Props = {
   onClose: () => void
 }
 
-const initialForm = {
-  name: '',
-  surname: '',
-  company: '',
-  email: '',
-  description: '',
-}
-
 const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [form, setForm] = useState({
+  const { form, errors, validate, clearErrors, handleChange, updateForm } = useTicketForm({
     name: ticket.name,
     surname: ticket.surname,
     company: ticket.company,
@@ -29,29 +33,15 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
     description: ticket.description,
   })
 
-  useEffect(() => {
-    setForm({
+  React.useEffect(() => {
+    updateForm({
       name: ticket.name,
       surname: ticket.surname,
       company: ticket.company,
       email: ticket.email,
       description: ticket.description,
     })
-  }, [ticket])
-
-  const { errors, validate, clearErrors } = useFormValidation<typeof initialForm>({
-    name: { required: true },
-    surname: { required: true },
-    company: { required: true },
-    email: { required: true, isEmail: true },
-    description: { required: true, minLength: 10 },
-  })
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm((s) => ({ ...s, [e.target.name]: e.target.value }))
-  }
+  }, [ticket, updateForm])
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -59,7 +49,7 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
 
   const handleCancel = () => {
     setIsEditing(false)
-    setForm({
+    updateForm({
       name: ticket.name,
       surname: ticket.surname,
       company: ticket.company,
@@ -98,97 +88,136 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
   }
 
   return (
-    <div className="ticket-detail">
-      <div className="ticket-detail-header">
-        <h2>Ticket Details</h2>
-        <button className="close-btn" onClick={onClose}>×</button>
-      </div>
+    <Paper elevation={2} sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h4" component="h2">
+          Ticket Details
+        </Typography>
+        <IconButton onClick={onClose} sx={{ ml: 'auto' }}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
 
-      {showDeleteConfirm && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-dialog">
-            <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete this ticket? This action cannot be undone.</p>
-            <div className="delete-confirm-actions">
-              <button className="cancel-btn" onClick={cancelDelete}>Cancel</button>
-              <button className="delete-btn" onClick={confirmDelete}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog
+        open={showDeleteConfirm}
+        onClose={cancelDelete}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete this ticket? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelDelete}>Cancel</Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {isEditing ? (
-        <form className="ticket-edit-form" onSubmit={handleSave} noValidate>
-          <div>
-            Name
-            <input name="name" value={form.name} onChange={handleChange} />
-            {errors.name && <div className="error">{errors.name}</div>}
-          </div>
-
-          <div>
-            Surname
-            <input name="surname" value={form.surname} onChange={handleChange} />
-            {errors.surname && <div className="error">{errors.surname}</div>}
-          </div>
-
-          <div>
-            Company
-            <input name="company" value={form.company} onChange={handleChange} />
-            {errors.company && <div className="error">{errors.company}</div>}
-          </div>
-
-          <div>
-            Email
-            <input name="email" value={form.email} onChange={handleChange} />
-            {errors.email && <div className="error">{errors.email}</div>}
-          </div>
-
-          <div className="full">
-            Description
-            <textarea
-              name="description"
-              rows={6}
-              value={form.description}
-              onChange={handleChange}
-            />
-            {errors.description && <div className="error">{errors.description}</div>}
-          </div>
-
-          <div className="actions full">
-            <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
-            <button type="submit">Save Changes</button>
-          </div>
-        </form>
+        <Box component="form" onSubmit={handleSave} noValidate>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+            <Box>
+              <FormField
+                label="Name"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                error={errors.name}
+              />
+            </Box>
+            <Box>
+              <FormField
+                label="Surname"
+                name="surname"
+                value={form.surname}
+                onChange={handleChange}
+                error={errors.surname}
+              />
+            </Box>
+            <Box>
+              <FormField
+                label="Company"
+                name="company"
+                value={form.company}
+                onChange={handleChange}
+                error={errors.company}
+              />
+            </Box>
+            <Box>
+              <FormField
+                label="Email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                error={errors.email}
+              />
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <FormField
+                label="Description"
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                error={errors.description}
+                type="textarea"
+                rows={6}
+              />
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1', display: 'flex', gap: 1, mt: 2 }}>
+              <Button onClick={handleCancel} variant="outlined">
+                Cancel
+              </Button>
+              <Button type="submit" variant="contained">
+                Save Changes
+              </Button>
+            </Box>
+          </Box>
+        </Box>
       ) : (
-        <div className="ticket-view">
-          <div className="ticket-info">
-            <div className="field-row">
-              <div>
-                Name: {ticket.name} {ticket.surname}
-              </div>
-              <div>
-                Company: {ticket.company}
-              </div>
-            </div>
-            <div style={{ marginTop: 8 }}>
+        <Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+              Name: {ticket.name} {ticket.surname}
+            </Typography>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+              Company: {ticket.company}
+            </Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2">
               Email: {ticket.email}
-            </div>
-            <div style={{ marginTop: 8 }}>
+            </Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2">
               Created: {new Date(ticket.createdAt).toLocaleString()}
-            </div>
-            <div style={{ marginTop: 8 }}>
+            </Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
               Description:
-              <p>{ticket.description}</p>
-            </div>
-          </div>
+            </Typography>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              {ticket.description}
+            </Typography>
+          </Box>
 
-          <div className="ticket-actions">
-            <button className="edit-btn" onClick={handleEdit}>Edit</button>
-            <button className="delete-btn" onClick={handleDelete}>Delete</button>
-          </div>
-        </div>
+          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 3 }}>
+            <Button onClick={handleEdit} variant="contained" color="primary">
+              Edit
+            </Button>
+            <Button onClick={handleDelete} variant="outlined" color="error">
+              Delete
+            </Button>
+          </Box>
+        </Box>
       )}
-    </div>
+    </Paper>
   )
 }
 

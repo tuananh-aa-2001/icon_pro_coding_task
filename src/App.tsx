@@ -1,5 +1,15 @@
 import { useState } from 'react'
-import './App.css'
+import { 
+  ThemeProvider,
+  CssBaseline,
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Container
+} from '@mui/material'
+import { theme } from './theme/theme'
 import TicketForm from './components/TicketForm'
 import TicketList from './components/TicketList'
 import TicketDetail from './components/TicketDetail'
@@ -42,39 +52,67 @@ function App() {
   }
 
   return (
-    <div className="app-root">
-      <header className="top-menu">
-        <h1 className="brand">Support Tickets</h1>
-        <nav>
-          <button
-            className={view === 'form' ? 'active' : ''}
-            onClick={() => setView('form')}
-          >
-            Create Ticket
-          </button>
-          <button
-            className={view === 'list' ? 'active' : ''}
-            onClick={() => setView('list')}
-          >
-            Ticket List
-          </button>
-        </nav>
-      </header>
-      <main className="container">
-        {view === 'form' ? (
-          <TicketForm onAdd={handleAdd} />
-        ) : view === 'list' ? (
-          <TicketList tickets={tickets} onTicketClick={handleTicketClick} />
-        ) : view === 'detail' && selectedTicket ? (
-          <TicketDetail
-            ticket={selectedTicket}
-            onUpdate={handleTicketUpdate}
-            onDelete={handleTicketDelete}
-            onClose={handleCloseDetail}
-          />
-        ) : null}
-      </main>
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBar position="static" color="default" elevation={1}>
+        <Container maxWidth="lg">
+          <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5" component="h1" sx={{ fontWeight: 600 }}>
+              Support Tickets
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant={view === 'form' ? 'contained' : 'outlined'}
+                onClick={() => setView('form')}
+                sx={{ 
+                  color: view === 'form' ? 'primary.contrastText' : 'primary.main',
+                  bgcolor: view === 'form' ? 'primary.main' : 'transparent',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: view === 'form' ? 'primary.dark' : 'primary.light',
+                    color: view === 'form' ? 'primary.contrastText' : 'primary.contrastText',
+                  }
+                }}
+              >
+                Create Ticket
+              </Button>
+              <Button
+                variant={view === 'list' ? 'contained' : 'outlined'}
+                onClick={() => setView('list')}
+                sx={{ 
+                  color: view === 'list' ? 'primary.contrastText' : 'primary.main',
+                  bgcolor: view === 'list' ? 'primary.main' : 'transparent',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    bgcolor: view === 'list' ? 'primary.dark' : 'primary.light',
+                    color: view === 'list' ? 'primary.contrastText' : 'primary.contrastText',
+                  }
+                }}
+              >
+                Ticket List
+              </Button>
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+      
+      <Box component="main" sx={{ flexGrow: 1, pt: 3 }}>
+        <Container maxWidth="lg">
+          {view === 'form' ? (
+            <TicketForm onAdd={handleAdd} />
+          ) : view === 'list' ? (
+            <TicketList tickets={tickets} onTicketClick={handleTicketClick} />
+          ) : view === 'detail' && selectedTicket ? (
+            <TicketDetail
+              ticket={selectedTicket}
+              onUpdate={handleTicketUpdate}
+              onDelete={handleTicketDelete}
+              onClose={handleCloseDetail}
+            />
+          ) : null}
+        </Container>
+      </Box>
+    </ThemeProvider>
   )
 }
 
