@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import { 
   Box, 
   Card, 
@@ -13,9 +13,7 @@ import {
 } from '@mui/material'
 import { Search as SearchIcon, Sort as SortIcon } from '@mui/icons-material'
 import { Ticket } from '../types'
-
-type SortField = 'date' | 'name' | 'company'
-type SortDirection = 'asc' | 'desc'
+import { useTicketSearchSort, useSortHandlers, type SortField, type SortDirection } from '../hooks'
 
 type Props = {
   tickets: Ticket[]
@@ -27,50 +25,8 @@ const TicketList: React.FC<Props> = ({ tickets, onTicketClick }) => {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
-  const filteredAndSortedTickets = useMemo(() => {
-    let filtered = tickets
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim()
-      filtered = tickets.filter(ticket => 
-        ticket.name.toLowerCase().includes(query) ||
-        ticket.surname.toLowerCase().includes(query) ||
-        ticket.email.toLowerCase().includes(query) ||
-        `${ticket.name} ${ticket.surname}`.toLowerCase().includes(query)
-      )
-    }
-
-    // Apply sorting
-    return [...filtered].sort((a, b) => {
-      let comparison = 0
-
-      switch (sortField) {
-        case 'date':
-          comparison = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          break
-        case 'name':
-          comparison = `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
-          break
-        case 'company':
-          comparison = a.company.localeCompare(b.company)
-          break
-      }
-
-      return sortDirection === 'asc' ? comparison : -comparison
-    })
-  }, [tickets, searchQuery, sortField, sortDirection])
-
-  const handleSort = (field: SortField) => {
-    if (sortField === field) {
-      // Toggle direction if same field
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')
-    } else {
-      // Change field and default to desc for date, asc for others
-      setSortField(field)
-      setSortDirection(field === 'date' ? 'desc' : 'asc')
-    }
-  }
+  const filteredAndSortedTickets = useTicketSearchSort(tickets, searchQuery, sortField, sortDirection)
+  const { handleSort } = useSortHandlers(sortField, setSortField, sortDirection, setSortDirection)
 
   if (!tickets || tickets.length === 0) {
     return (
@@ -145,7 +101,7 @@ const TicketList: React.FC<Props> = ({ tickets, onTicketClick }) => {
           sx={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 3,
+            gap: 5,
             py: 2,
           }}
         >
