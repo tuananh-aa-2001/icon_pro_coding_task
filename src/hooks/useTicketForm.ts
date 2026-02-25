@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useFormValidation } from './index'
 
 export const initialTicketForm = {
@@ -31,9 +31,9 @@ export const useTicketForm = (initialData = initialTicketForm) => {
     clearErrors()
   }
 
-  const updateForm = (data: Partial<typeof initialTicketForm>) => {
+  const updateForm = useCallback((data: Partial<typeof initialTicketForm>) => {
     setForm((s) => ({ ...s, ...data }))
-  }
+  }, [])
 
   return {
     form,

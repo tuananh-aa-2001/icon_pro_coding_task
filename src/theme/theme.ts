@@ -1,5 +1,23 @@
 import { createTheme } from '@mui/material/styles'
 
+// Extend the theme to accept custom values
+declare module '@mui/material/styles' {
+  interface Theme {
+    custom: {
+      border: {
+        main: string;
+      };
+    };
+  }
+  interface ThemeOptions {
+    custom?: {
+      border?: {
+        main?: string;
+      };
+    };
+  }
+}
+
 export const theme = createTheme({
   palette: {
     mode: 'light',
@@ -26,6 +44,8 @@ export const theme = createTheme({
     error: {
       main: '#9c3e3e',
     },
+  },
+  custom: {
     border: {
       main: '#e8e6e1',
     },

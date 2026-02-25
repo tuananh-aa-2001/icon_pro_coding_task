@@ -41,7 +41,7 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
       email: ticket.email,
       description: ticket.description,
     })
-  }, [ticket, updateForm])
+  }, [ticket.name, ticket.surname, ticket.company, ticket.email, ticket.description])
 
   const handleEdit = () => {
     setIsEditing(true)
@@ -62,6 +62,17 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
   const handleSave = (evt: React.FormEvent) => {
     evt.preventDefault()
     if (!validate(form)) return
+    
+    console.log('Saving ticket with data:', {
+      id: ticket.id,
+      data: {
+        name: form.name.trim(),
+        surname: form.surname.trim(),
+        company: form.company.trim(),
+        email: form.email.trim(),
+        description: form.description.trim(),
+      }
+    })
     
     onUpdate(ticket.id, {
       name: form.name.trim(),
