@@ -11,17 +11,20 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
-import { theme } from './theme/theme'
+import { ThemeProvider as AppThemeProvider, useTheme } from './context/ThemeContext'
+import { createAppTheme } from './theme/theme'
 import TicketForm from './components/TicketForm'
 import TicketList from './components/TicketList'
 import TicketDetail from './components/TicketDetail'
+import ThemeToggle from './components/ThemeToggle'
 import { useTicketsApi, useCreateTicket, useUpdateTicket, useDeleteTicket } from './hooks'
 import type { View } from './types'
 import type { Ticket } from './types'
 
-function App() {
+function AppContent() {
   const [view, setView] = useState<View>('form')
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const { mode } = useTheme()
   
   // TanStack Query hooks
   const { data: tickets = [], isLoading, error } = useTicketsApi()
@@ -31,7 +34,7 @@ function App() {
 
   const handleAdd: Parameters<typeof TicketForm>[0]['onAdd'] = (data) => {
     createTicketMutation.mutate(data, {
-      onSuccess: (newTicket) => {
+      onSuccess: () => {
         // Navigate to list view after successful creation
         setView('list')
         // Optionally scroll to top or highlight the new ticket
@@ -70,7 +73,7 @@ function App() {
 
   if (error) {
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={createAppTheme(mode)}>
         <CssBaseline />
         <Container maxWidth="md">
           <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -87,17 +90,19 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={createAppTheme(mode)}>
       <CssBaseline />
       <AppBar position="static" sx={{ mb: 4 }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Ticket Management System
           </Typography>
+          <ThemeToggle />
           <Button 
             color="inherit" 
             onClick={() => setView('form')}
             sx={{ 
+              ml: 2,
               backgroundColor: view === 'form' ? 'rgba(255,255,255,0.2)' : 'transparent',
               '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
             }}
@@ -146,6 +151,15 @@ function App() {
         )}
       </Container>
     </ThemeProvider>
+  )
+}
+
+// Main App component with theme provider
+function App() {
+  return (
+    <AppThemeProvider>
+      <AppContent />
+    </AppThemeProvider>
   )
 }
 
