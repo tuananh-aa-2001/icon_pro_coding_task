@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo, useCallback } from 'react'
 import { 
   Box,
   Card, 
@@ -16,18 +16,22 @@ type Props = {
   draggable?: boolean
 }
 
-const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick, draggable = false }) => {
+const TicketCardComponent: React.FC<Props> = ({ ticket, ticketNumber, onClick, draggable = false }) => {
   const { startDragging, stopDragging } = useDragDrop()
 
-  const handleDragStart = (e: React.DragEvent) => {
+  const handleDragStart = useCallback((e: React.DragEvent) => {
     e.dataTransfer.setData('text/plain', JSON.stringify(ticket))
     e.dataTransfer.effectAllowed = 'move'
     startDragging(ticket)
-  }
+  }, [ticket, startDragging])
 
-  const handleDragEnd = () => {
+  const handleDragEnd = useCallback(() => {
     stopDragging()
-  }
+  }, [stopDragging])
+
+  const handleClick = useCallback(() => {
+    onClick(ticket)
+  }, [ticket, onClick])
 
   return (
     <Card
@@ -44,7 +48,7 @@ const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick, draggable 
         },
         opacity: draggable ? 0.9 : 1,
       }}
-      onClick={() => onClick(ticket)}
+      onClick={handleClick}
       onDragStart={draggable ? handleDragStart : undefined}
       onDragEnd={draggable ? handleDragEnd : undefined}
     >
@@ -98,4 +102,4 @@ const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick, draggable 
   )
 }
 
-export default TicketCard
+export const TicketCard = memo(TicketCardComponent)

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { memo, useCallback } from 'react'
 import {
   Box,
   Paper,
@@ -8,7 +8,7 @@ import {
 } from '@mui/material'
 import { PriorityLevel, PriorityColumn as PriorityColumnType } from '../types/dragDrop'
 import { useDragDrop } from '../context/DragDropContext'
-import TicketCard from './TicketCard'
+import { TicketCard } from './TicketCard'
 
 interface PriorityColumnProps {
   column: PriorityColumnType
@@ -16,7 +16,7 @@ interface PriorityColumnProps {
   onTicketDrop: (ticketId: string, fromPriority: PriorityLevel, toPriority: PriorityLevel) => void
 }
 
-const PriorityColumn: React.FC<PriorityColumnProps> = ({ 
+const PriorityColumnComponent: React.FC<PriorityColumnProps> = ({ 
   column, 
   onTicketClick,
   onTicketDrop
@@ -26,16 +26,16 @@ const PriorityColumn: React.FC<PriorityColumnProps> = ({
 
   const isDraggedOver = draggedOverPriority === column.priority
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDraggedOver(column.priority)
-  }
+  }, [column.priority, setDraggedOver])
 
-  const handleDragLeave = () => {
+  const handleDragLeave = useCallback(() => {
     setDraggedOver(null)
-  }
+  }, [setDraggedOver])
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault()
     setDraggedOver(null)
     
@@ -43,7 +43,7 @@ const PriorityColumn: React.FC<PriorityColumnProps> = ({
       onTicketDrop(draggedTicket.id, draggedTicket.priority, column.priority)
     }
     stopDragging()
-  }
+  }, [draggedTicket, column.priority, onTicketDrop, stopDragging, setDraggedOver])
 
   const getPriorityColor = (priority: PriorityLevel) => {
     switch (priority) {
@@ -129,4 +129,4 @@ const PriorityColumn: React.FC<PriorityColumnProps> = ({
   )
 }
 
-export default PriorityColumn
+export const PriorityColumn = memo(PriorityColumnComponent)

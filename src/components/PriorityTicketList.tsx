@@ -1,9 +1,10 @@
 import React from 'react'
-import { Box, Typography, useTheme } from '@mui/material'
-import { PriorityLevel, PriorityColumn as PriorityColumnType } from '../types/dragDrop'
+import { Box, Typography } from '@mui/material'
+import { PriorityLevel } from '../types/dragDrop'
 import { Ticket } from '../types'
-import PriorityColumnComponent from './PriorityColumn'
+import { PriorityColumn } from './PriorityColumn'
 import { useDragDrop } from '../context/DragDropContext'
+import { useTicketPriority } from '../hooks/useTicketPriority'
 
 interface PriorityTicketListProps {
   tickets: Ticket[]
@@ -16,25 +17,8 @@ const PriorityTicketList: React.FC<PriorityTicketListProps> = ({
   onTicketClick,
   onTicketDrop 
 }) => {
-  const theme = useTheme()
   const { draggedTicket, stopDragging } = useDragDrop()
-
-  // Group tickets by priority
-  const groupTicketsByPriority = (tickets: Ticket[]): PriorityColumnType[] => {
-    const priorities: PriorityLevel[] = ['high', 'medium', 'low']
-    
-    return priorities.map((priority) => ({
-      priority,
-      title: priority.charAt(0).toUpperCase() + priority.slice(1) + ' Priority',
-      icon: priority === 'high' ? '🔴' : priority === 'medium' ? '🟡' : '🟢',
-      color: priority === 'high' 
-        ? theme.palette.error.main 
-        : priority === 'medium' 
-          ? theme.palette.warning.main 
-          : theme.palette.success.main,
-      tickets: tickets.filter(ticket => ticket.priority === priority)
-    }))
-  }
+  const { priorityColumns } = useTicketPriority(tickets)
 
   const handleDrop = (e: React.DragEvent, targetPriority: PriorityLevel) => {
     e.preventDefault()
@@ -50,8 +34,6 @@ const PriorityTicketList: React.FC<PriorityTicketListProps> = ({
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
   }
-
-  const priorityColumns = groupTicketsByPriority(tickets)
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -72,7 +54,7 @@ const PriorityTicketList: React.FC<PriorityTicketListProps> = ({
             onDragOver={handleDragOver}
             sx={{ minHeight: 500 }}
           >
-            <PriorityColumnComponent 
+            <PriorityColumn 
               column={column}
               onTicketClick={onTicketClick}
               onTicketDrop={onTicketDrop}
