@@ -11,6 +11,7 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material'
+import { Upload as UploadIcon } from '@mui/icons-material'
 import { ThemeProvider as AppThemeProvider, useTheme } from './context/ThemeContext'
 import { DragDropProvider } from './context/DragDropContext'
 import { createAppTheme } from './theme/theme'
@@ -18,13 +19,18 @@ import TicketForm from './components/TicketForm'
 import PriorityTicketList from './components/PriorityTicketList'
 import TicketDetail from './components/TicketDetail'
 import ThemeToggle from './components/ThemeToggle'
+import ExportButton from './components/ExportButton'
+import ImportDialog from './components/ImportDialog'
 import { useTicketsApi, useCreateTicket, useUpdateTicket, useDeleteTicket } from './hooks'
+import { useBulkImportTickets } from './hooks/useTicketImport'
 import type { View } from './types'
 import type { Ticket } from './types'
+import { ImportOptions } from './types/importExport'
 
 function AppContent() {
   const [view, setView] = useState<View>('form')
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const [showImportDialog, setShowImportDialog] = useState(false)
   const { mode } = useTheme()
   
   // TanStack Query hooks
@@ -32,6 +38,7 @@ function AppContent() {
   const createTicketMutation = useCreateTicket()
   const updateTicketMutation = useUpdateTicket()
   const deleteTicketMutation = useDeleteTicket()
+  const bulkImportMutation = useBulkImportTickets()
 
   const handleTicketDrop = async (ticketId: string, fromPriority: string, toPriority: string) => {
     try {
@@ -43,6 +50,23 @@ function AppContent() {
       console.log(`Ticket ${ticketId} moved from ${fromPriority} to ${toPriority} priority`)
     } catch (error) {
       console.error('Failed to update ticket priority:', error)
+    }
+  }
+
+  const handleImport = async (importedTickets: Ticket[], options: ImportOptions) => {
+    try {
+      // Convert tickets to the format expected by the API
+      const ticketsToImport = importedTickets.map(({ id, createdAt, ...ticket }) => ticket)
+      
+      await bulkImportMutation.mutateAsync({
+        tickets: ticketsToImport,
+        options
+      })
+      
+      setShowImportDialog(false)
+    } catch (error) {
+      console.error('Failed to import tickets:', error)
+      throw error
     }
   }
 
@@ -106,34 +130,66 @@ function AppContent() {
   return (
     <ThemeProvider theme={createAppTheme(mode)}>
       <CssBaseline />
-      <AppBar position="static" sx={{ mb: 4 }}>
+      <AppBar position="static" sx={{ 
+        mb: 4,
+        bgcolor: 'primary.main',
+        color: 'primary.contrastText'
+      }}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Ticket Management System
           </Typography>
-          <ThemeToggle />
-          <Button 
-            color="inherit" 
-            onClick={() => setView('form')}
-            sx={{ 
-              ml: 2,
-              backgroundColor: view === 'form' ? 'rgba(255,255,255,0.2)' : 'transparent',
-              '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
-            }}
-          >
-            Create Ticket
-          </Button>
-          <Button 
-            color="inherit" 
-            onClick={() => setView('list')}
-            sx={{ 
-              ml: 2,
-              backgroundColor: view === 'list' ? 'rgba(255,255,255,0.2)' : 'transparent',
-              '&:hover': { backgroundColor: 'rgba(255,255,255,0.3)' }
-            }}
-          >
-            Ticket List
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Button 
+              color="inherit" 
+              onClick={() => setView('form')}
+              sx={{ 
+                backgroundColor: view === 'form' ? 'rgba(255,255,255,0.2)' : 'transparent',
+                borderColor: 'rgba(255,255,255,0.5)',
+                '&:hover': { 
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                  borderColor: 'rgba(255,255,255,0.7)'
+                }
+              }}
+              size="small"
+              variant="outlined"
+            >
+              Create Ticket
+            </Button>
+            <Button 
+              color="inherit" 
+              onClick={() => setView('list')}
+              sx={{ 
+                backgroundColor: view === 'list' ? 'rgba(255,255,255,0.2)' : 'transparent',
+                borderColor: 'rgba(255,255,255,0.5)',
+                '&:hover': { 
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                  borderColor: 'rgba(255,255,255,0.7)'
+                }
+              }}
+              size="small"
+              variant="outlined"
+            >
+              Ticket List
+            </Button>
+            <ExportButton tickets={tickets} size="small" />
+            <Button 
+              variant="contained"
+              onClick={() => setShowImportDialog(true)}
+              startIcon={<UploadIcon />}
+              size="small"
+              sx={{
+                bgcolor: 'primary.main',
+                color: 'primary.contrastText',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                }
+              }}
+            >
+              Import
+            </Button>
+            <ThemeToggle />
+          </Box>
         </Toolbar>
       </AppBar>
 
@@ -165,6 +221,13 @@ function AppContent() {
           </>
         )}
       </Container>
+
+      <ImportDialog
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImport={handleImport}
+        existingTickets={tickets}
+      />
     </ThemeProvider>
   )
 }

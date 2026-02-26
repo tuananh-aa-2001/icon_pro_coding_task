@@ -130,6 +130,50 @@ export const ticketApi = {
     return mockTickets[ticketIndex]
   },
 
+  // Bulk import tickets
+  bulkImportTickets: async (tickets: Omit<Ticket, 'id' | 'createdAt'>[]): Promise<Ticket[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
+    console.log('API: Bulk importing tickets', { count: tickets.length })
+    
+    const importedTickets: Ticket[] = []
+    
+    for (const ticketData of tickets) {
+      const newTicket: Ticket = {
+        ...ticketData,
+        id: `ticket-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        createdAt: new Date().toISOString(),
+      }
+      mockTickets.push(newTicket)
+      importedTickets.push(newTicket)
+    }
+    
+    console.log('API: Bulk import completed', { imported: importedTickets.length })
+    return importedTickets
+  },
+
+  // Bulk update tickets
+  bulkUpdateTickets: async (updates: { id: string; data: Partial<Ticket> }[]): Promise<Ticket[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 400))
+    
+    console.log('API: Bulk updating tickets', { count: updates.length })
+    
+    const updatedTickets: Ticket[] = []
+    
+    for (const update of updates) {
+      const ticketIndex = mockTickets.findIndex(t => t.id === update.id)
+      if (ticketIndex !== -1) {
+        mockTickets[ticketIndex] = { ...mockTickets[ticketIndex], ...update.data }
+        updatedTickets.push(mockTickets[ticketIndex])
+      }
+    }
+    
+    console.log('API: Bulk update completed', { updated: updatedTickets.length })
+    return updatedTickets
+  },
+
   // Delete a ticket
   deleteTicket: async (id: string): Promise<void> => {
     // Simulate API delay

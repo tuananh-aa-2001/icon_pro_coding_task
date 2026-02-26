@@ -14,6 +14,8 @@ import {
 import { Search as SearchIcon, Sort as SortIcon } from '@mui/icons-material'
 import { Ticket } from '../types'
 import { useTicketSearchSort, useSortHandlers, type SortField, type SortDirection } from '../hooks'
+import { useDebounce } from '../hooks/useDebounce'
+import { UI } from '../constants'
 
 type Props = {
   tickets: Ticket[]
@@ -25,7 +27,8 @@ const TicketList: React.FC<Props> = ({ tickets, onTicketClick }) => {
   const [sortField, setSortField] = useState<SortField>('date')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
-  const filteredAndSortedTickets = useTicketSearchSort(tickets, searchQuery, sortField, sortDirection)
+  const debouncedSearchQuery = useDebounce(searchQuery, UI.DEBOUNCE_DELAY)
+  const filteredAndSortedTickets = useTicketSearchSort(tickets, debouncedSearchQuery, sortField, sortDirection)
   const { handleSort } = useSortHandlers(sortField, setSortField, sortDirection, setSortDirection)
 
   if (!tickets || tickets.length === 0) {
