@@ -12,9 +12,10 @@ import {
   Alert
 } from '@mui/material'
 import { ThemeProvider as AppThemeProvider, useTheme } from './context/ThemeContext'
+import { DragDropProvider } from './context/DragDropContext'
 import { createAppTheme } from './theme/theme'
 import TicketForm from './components/TicketForm'
-import TicketList from './components/TicketList'
+import PriorityTicketList from './components/PriorityTicketList'
 import TicketDetail from './components/TicketDetail'
 import ThemeToggle from './components/ThemeToggle'
 import { useTicketsApi, useCreateTicket, useUpdateTicket, useDeleteTicket } from './hooks'
@@ -31,6 +32,19 @@ function AppContent() {
   const createTicketMutation = useCreateTicket()
   const updateTicketMutation = useUpdateTicket()
   const deleteTicketMutation = useDeleteTicket()
+
+  const handleTicketDrop = async (ticketId: string, fromPriority: string, toPriority: string) => {
+    try {
+      // Update ticket priority via API
+      await updateTicketMutation.mutateAsync({
+        id: ticketId,
+        updates: { priority: toPriority as any }
+      })
+      console.log(`Ticket ${ticketId} moved from ${fromPriority} to ${toPriority} priority`)
+    } catch (error) {
+      console.error('Failed to update ticket priority:', error)
+    }
+  }
 
   const handleAdd: Parameters<typeof TicketForm>[0]['onAdd'] = (data) => {
     createTicketMutation.mutate(data, {
@@ -134,9 +148,10 @@ function AppContent() {
               <TicketForm onAdd={handleAdd} />
             )}
             {view === 'list' && (
-              <TicketList 
+              <PriorityTicketList 
                 tickets={tickets} 
                 onTicketClick={handleTicketClick}
+                onTicketDrop={handleTicketDrop}
               />
             )}
             {view === 'detail' && selectedTicket && (
@@ -158,7 +173,9 @@ function AppContent() {
 function App() {
   return (
     <AppThemeProvider>
-      <AppContent />
+      <DragDropProvider>
+        <AppContent />
+      </DragDropProvider>
     </AppThemeProvider>
   )
 }

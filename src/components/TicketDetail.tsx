@@ -80,6 +80,7 @@ const TicketDetail: React.FC<Props> = ({ ticket, onUpdate, onDelete, onClose }) 
       company: form.company.trim(),
       email: form.email.trim(),
       description: form.description.trim(),
+      priority: ticket.priority, // Preserve existing priority
     })
     setIsEditing(false)
     clearErrors()

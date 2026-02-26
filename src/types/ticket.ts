@@ -1,3 +1,5 @@
+import { PriorityLevel } from './dragDrop'
+
 export interface Ticket {
     id: string
     name: string
@@ -5,5 +7,6 @@ export interface Ticket {
     company: string
     email: string
     description: string
+    priority: PriorityLevel
     createdAt: string
 }

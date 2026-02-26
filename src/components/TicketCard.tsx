@@ -4,28 +4,49 @@ import {
   Card, 
   CardContent, 
   Typography, 
-  Chip
+  Chip,
 } from '@mui/material'
 import { Ticket } from '../types'
+import { useDragDrop } from '../context/DragDropContext'
 
 type Props = {
   ticket: Ticket
   ticketNumber: number
   onClick: (ticket: Ticket) => void
+  draggable?: boolean
 }
 
-const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick }) => {
+const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick, draggable = false }) => {
+  const { startDragging, stopDragging } = useDragDrop()
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify(ticket))
+    e.dataTransfer.effectAllowed = 'move'
+    startDragging(ticket)
+  }
+
+  const handleDragEnd = () => {
+    stopDragging()
+  }
+
   return (
     <Card
+      draggable={draggable}
       sx={{
-        cursor: 'pointer',
+        cursor: draggable ? 'grab' : 'pointer',
         transition: 'all 0.3s ease',
         '&:hover': {
           transform: 'translateY(-2px)',
           boxShadow: 4,
         },
+        '&:active': {
+          cursor: draggable ? 'grabbing' : 'pointer',
+        },
+        opacity: draggable ? 0.9 : 1,
       }}
       onClick={() => onClick(ticket)}
+      onDragStart={draggable ? handleDragStart : undefined}
+      onDragEnd={draggable ? handleDragEnd : undefined}
     >
       <CardContent sx={{ p: 3, position: 'relative' }}>
         <Chip
@@ -42,7 +63,7 @@ const TicketCard: React.FC<Props> = ({ ticket, ticketNumber, onClick }) => {
             fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
           }}
         />
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 2 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 1 }}>
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 'bold' }}>

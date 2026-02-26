@@ -21,6 +21,7 @@ const mockTickets: Ticket[] = [
     company: 'Tech Corp',
     email: 'john.doe@techcorp.com',
     description: 'Issue with login functionality',
+    priority: 'high',
     createdAt: new Date('2024-01-15T10:30:00').toISOString(),
   },
   {
@@ -29,7 +30,8 @@ const mockTickets: Ticket[] = [
     surname: 'Smith',
     company: 'Design Studio',
     email: 'jane.smith@designstudio.com',
-    description: 'Need help with payment integration',
+    description: 'Feature request for dark mode',
+    priority: 'medium',
     createdAt: new Date('2024-01-16T14:20:00').toISOString(),
   },
   {
@@ -38,25 +40,28 @@ const mockTickets: Ticket[] = [
     surname: 'Johnson',
     company: 'Startup Inc',
     email: 'mike.johnson@startupinc.com',
-    description: 'Bug report in dashboard',
+    description: 'Bug report in mobile view',
+    priority: 'high',
     createdAt: new Date('2024-01-17T09:15:00').toISOString(),
   },
   {
     id: '4',
     name: 'Sarah',
     surname: 'Williams',
-    company: 'Marketing Agency',
-    email: 'sarah.williams@marketing.com',
-    description: 'Request for new feature',
+    company: 'Enterprise Co',
+    email: 'sarah.williams@enterprise.com',
+    description: 'Performance optimization suggestion',
+    priority: 'low',
     createdAt: new Date('2024-01-18T16:45:00').toISOString(),
   },
   {
     id: '5',
-    name: 'David',
+    name: 'Tom',
     surname: 'Brown',
-    company: 'E-commerce Store',
-    email: 'david.brown@ecommerce.com',
-    description: 'Performance optimization needed',
+    company: 'Digital Agency',
+    email: 'tom.brown@digitalagency.com',
+    description: 'Integration with third-party service',
+    priority: 'medium',
     createdAt: new Date('2024-01-19T11:30:00').toISOString(),
   },
 ]
@@ -78,8 +83,9 @@ export const ticketApi = {
     
     const newTicket: Ticket = {
       ...ticket,
-      id: Date.now().toString(),
+      id: `ticket-${Date.now()}`,
       createdAt: new Date().toISOString(),
+      priority: 'medium', // Default priority for new tickets
     }
     
     // In real app, this would be: api.post('/tickets', ticket)
@@ -101,6 +107,26 @@ export const ticketApi = {
     
     mockTickets[ticketIndex] = { ...mockTickets[ticketIndex], ...updates }
     console.log('API: Updated ticket result:', mockTickets[ticketIndex])
+    return mockTickets[ticketIndex]
+  },
+
+  // Update ticket priority
+  updateTicketPriority: async (id: string, newPriority: string): Promise<Ticket> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300))
+    
+    console.log('API: Updating ticket priority', { id, newPriority })
+    
+    const ticketIndex = mockTickets.findIndex(t => t.id === id)
+    if (ticketIndex === -1) {
+      throw new Error('Ticket not found')
+    }
+    
+    mockTickets[ticketIndex] = { 
+      ...mockTickets[ticketIndex], 
+      priority: newPriority as any 
+    }
+    console.log('API: Updated ticket priority result:', mockTickets[ticketIndex])
     return mockTickets[ticketIndex]
   },
 

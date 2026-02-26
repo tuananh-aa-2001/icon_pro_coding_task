@@ -20,6 +20,7 @@ const TicketForm: React.FC<Props> = ({ onAdd }) => {
       company: form.company.trim(),
       email: form.email.trim(),
       description: form.description.trim(),
+      priority: 'medium', // Default priority for new tickets
     })
     resetForm()
   }
